@@ -188,9 +188,9 @@ results.innerHTML="Поиск...";
 
 try{
 
-const url=`https://corsproxy.io/?https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}&language=ru-RU`;
+const url=`https://api.allorigins.win/raw?url=https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}&language=ru-RU`;
 
-const res=await fetch(url,{
+const res = await fetch(url,{
 headers:{
 Authorization:`Bearer ${TOKEN}`,
 accept:"application/json"
