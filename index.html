@@ -19,20 +19,35 @@ body{
 
 .top{
     display:flex;
+    align-items:center;
     gap:10px;
 }
 
-/* поиск */
+/* поле поиска */
 
-#search{
+.searchBox{
+    position:relative;
     flex:1;
-    padding:10px;
+}
+
+.searchBox input{
+    width:100%;
+    padding:10px 10px 10px 35px;
     font-size:16px;
     border-radius:10px;
     border:none;
 }
 
-/* кнопка режима */
+/* иконка поиска */
+
+.searchIcon{
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+/* кнопка вида */
 
 #viewBtn{
     width:40px;
@@ -71,16 +86,26 @@ body{
     gap:10px;
 }
 
+.grid .card{
+    padding:5px;
+}
+
+.grid .card h3,
+.grid .card p,
+.grid .card a{
+    display:none;
+}
+
 .grid .card img{
-    height:180px;
+    height:200px;
     object-fit:cover;
 }
 
 /* кнопка кинопоиска */
 
 .kp{
-    margin-top:8px;
     display:inline-block;
+    margin-top:8px;
     background:#ffcc00;
     color:black;
     padding:6px 10px;
@@ -98,7 +123,13 @@ body{
 
 <div class="top">
 
-<input id="search" placeholder="Поиск фильма..." />
+<div class="searchBox">
+
+<span class="searchIcon">🔍</span>
+
+<input id="search" placeholder="Поиск фильма...">
+
+</div>
 
 <button id="viewBtn">📦</button>
 
@@ -108,14 +139,15 @@ body{
 
 <script>
 
-const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYTVlOTIzY2JmM2JmYjA3ZmQ4ZTQ5NmM2NDBkODNkMyIsIm5iZiI6MTc3MTI1NTAyNi4yMTQwMDAyLCJzdWIiOiI2OTkzMzRmMjA0NTBhYTczZTkwNjU4MTgiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.Nl0dl9ZINhKJ6CQCgqXLnflUavTA55j6Pn0XpDiuG-k";
+const TOKEN = "ТВОЙ_TMDB_BEARER";
 
-let grid = false;
+let grid=false;
 
-document.getElementById("viewBtn").onclick = () => {
-    grid = !grid;
+document.getElementById("viewBtn").onclick=()=>{
 
-    const results = document.getElementById("results");
+    grid=!grid;
+
+    const results=document.getElementById("results");
 
     if(grid){
         results.classList.add("grid");
@@ -124,15 +156,26 @@ document.getElementById("viewBtn").onclick = () => {
         results.classList.remove("grid");
         document.getElementById("viewBtn").innerText="📦";
     }
+
 };
 
-document.getElementById("search").addEventListener("change", search);
+/* поиск при вводе */
+
+document.getElementById("search").addEventListener("input",()=>{
+
+    clearTimeout(window.searchTimer);
+
+    window.searchTimer=setTimeout(search,400);
+
+});
 
 async function search(){
 
-    const query = document.getElementById("search").value;
+    const query=document.getElementById("search").value;
 
-    const res = await fetch(
+    if(query.length<2) return;
+
+    const res=await fetch(
         `https://api.themoviedb.org/3/search/multi?query=${query}&language=ru-RU`,
         {
             headers:{
@@ -141,31 +184,31 @@ async function search(){
         }
     );
 
-    const data = await res.json();
+    const data=await res.json();
 
-    const results = document.getElementById("results");
+    const results=document.getElementById("results");
 
     results.innerHTML="";
 
     data.results.slice(0,10).forEach(movie=>{
 
-        const title = movie.title || movie.name;
+        const title=movie.title||movie.name;
 
-        const poster = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "";
+        const poster=movie.poster_path
+        ?`https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        :"";
 
-        const kinopoisk = `https://www.kinopoisk.ru/index.php?kp_query=${title}`;
+        const kinopoisk=`https://www.kinopoisk.ru/index.php?kp_query=${title}`;
 
-        const div = document.createElement("div");
+        const div=document.createElement("div");
 
         div.className="card";
 
-        div.innerHTML = `
+        div.innerHTML=`
         <img src="${poster}">
         <h3>${title}</h3>
-        ⭐ ${movie.vote_average || "—"}
-        <p>${movie.overview || ""}</p>
+        ⭐ ${movie.vote_average||"—"}
+        <p>${movie.overview||""}</p>
         <a class="kp" target="_blank" href="${kinopoisk}">
         🎬 Открыть в Кинопоиске
         </a>
