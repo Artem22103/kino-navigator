@@ -9,85 +9,96 @@
 <style>
 
 body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-padding:15px;
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:15px;
 }
+
+/* панель поиска */
 
 .top{
-display:flex;
-gap:10px;
-align-items:center;
+    display:flex;
+    gap:10px;
+    width:100%;
 }
 
-.searchBox{
-flex:1;
-position:relative;
+/* поле поиска фиксированное */
+
+#search{
+    width:70%;
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    font-size:16px;
 }
 
-.searchBox input{
-width:100%;
-padding:10px 10px 10px 35px;
-border-radius:10px;
-border:none;
-font-size:16px;
+/* кнопка поиска */
+
+#searchBtn{
+    width:15%;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
 }
 
-.searchIcon{
-position:absolute;
-left:10px;
-top:50%;
-transform:translateY(-50%);
-}
+/* кнопка режима */
 
 #viewBtn{
-width:42px;
-height:42px;
-border-radius:50%;
-border:none;
-cursor:pointer;
-background:#1e293b;
-color:white;
-font-size:18px;
+    width:15%;
+    border:none;
+    border-radius:10px;
+    background:#1e293b;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
 }
+
+/* результаты */
 
 #results{
-margin-top:15px;
+    margin-top:20px;
 }
 
+/* карточка */
+
 .card{
-background:#1e293b;
-padding:10px;
-border-radius:12px;
-margin-top:15px;
+    background:#1e293b;
+    padding:10px;
+    border-radius:12px;
+    margin-top:15px;
 }
 
 .card img{
-width:100%;
-border-radius:10px;
+    width:100%;
+    border-radius:10px;
 }
 
-.kp{
-display:inline-block;
-margin-top:8px;
-background:#ffcc00;
-color:black;
-padding:6px 10px;
-border-radius:8px;
-text-decoration:none;
-}
+/* сетка */
 
 .grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
 }
 
 .grid .card h3,
 .grid .card p,
 .grid .card a{
-display:none;
+    display:none;
+}
+
+.kp{
+    display:inline-block;
+    margin-top:10px;
+    background:#ffcc00;
+    color:black;
+    padding:6px 10px;
+    border-radius:8px;
+    text-decoration:none;
 }
 
 </style>
@@ -99,10 +110,9 @@ display:none;
 
 <div class="top">
 
-<div class="searchBox">
-<span class="searchIcon">🔍</span>
-<input id="search" placeholder="Поиск фильма...">
-</div>
+<input id="search" placeholder="Введите фильм">
+
+<button id="searchBtn">🔍</button>
 
 <button id="viewBtn">☷</button>
 
@@ -115,6 +125,8 @@ display:none;
 const API_KEY="eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYTVlOTIzY2JmM2JmYjA3ZmQ4ZTQ5NmM2NDBkODNkMyIsIm5iZiI6MTc3MTI1NTAyNi4yMTQwMDAyLCJzdWIiOiI2OTkzMzRmMjA0NTBhYTczZTkwNjU4MTgiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.Nl0dl9ZINhKJ6CQCgqXLnflUavTA55j6Pn0XpDiuG-k";
 
 let grid=false;
+
+/* переключение вида */
 
 document.getElementById("viewBtn").onclick=()=>{
 
@@ -132,11 +144,15 @@ document.getElementById("viewBtn").innerText="☷";
 
 };
 
-document.getElementById("search").addEventListener("input",()=>{
+/* поиск по кнопке */
 
-clearTimeout(window.timer);
+document.getElementById("searchBtn").onclick=search;
 
-window.timer=setTimeout(search,400);
+/* поиск по Enter */
+
+document.getElementById("search").addEventListener("keypress",(e)=>{
+
+if(e.key==="Enter") search();
 
 });
 
@@ -144,11 +160,9 @@ async function search(){
 
 const query=document.getElementById("search").value.trim();
 
-if(query.length<2) return;
+if(query==="") return;
 
 const url=`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=ru-RU`;
-
-try{
 
 const res=await fetch(url);
 
@@ -157,6 +171,8 @@ const data=await res.json();
 const results=document.getElementById("results");
 
 results.innerHTML="";
+
+if(!data.results) return;
 
 data.results.slice(0,10).forEach(movie=>{
 
@@ -185,10 +201,6 @@ ${poster?`<img src="${poster}">`:""}
 results.appendChild(div);
 
 });
-
-}catch(e){
-console.log(e);
-}
 
 }
 
